@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth";
 import todoRoutes from "./routes/todo";
 import cors from "cors";
+import dotenv from "dotenv";
 
-const port = 3000;
+dotenv.config();
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors());
@@ -14,14 +16,18 @@ app.use("/auth", authRoutes);
 app.use("/todo", todoRoutes);
 app.get("/", (req, res) => res.json({ msg: "hello world from the server" }));
 
-mongoose.connect(
-  "mongodb+srv://zahid:zahid495@cluster0.t7uye72.mongodb.net/todo-app"
-);
+if (!process.env.MONGODB_URI) {
+  console.error(
+    "MONGODB_URI is not defined. Please define it in the .env file."
+  );
+  process.exit(1);
+}
+mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Example app listening at http://localhost:${PORT}`);
 });

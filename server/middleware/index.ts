@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
-export const SECRET = "SECr3t"; // This should be in an environment variable in a real application
+import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
+
+dotenv.config();
+export const SECRET = process.env.SECRET || "fallback-secret";
 
 export const authenticateJwt = (
   req: Request,
