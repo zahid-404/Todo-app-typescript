@@ -30,6 +30,7 @@ function InitState() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [showModal, setShowModal] = useState(false);
+  const [isBackendRunning, setIsBackendRunning] = useState(false);
 
   const checkBackend = async () => {
     const token = localStorage.getItem("token");
@@ -44,24 +45,28 @@ function InitState() {
       } else {
         navigate("/login");
       }
+      setIsBackendRunning(true);
     } catch (e) {
       navigate("/login");
+      setIsBackendRunning(false);
+    } finally {
+      setShowModal(true);
     }
   };
 
   useEffect(() => {
     const hasCheckedBackend = localStorage.getItem("hasCheckedBackend");
     if (!hasCheckedBackend) {
-      setShowModal(true);
+      checkBackend();
       localStorage.setItem("hasCheckedBackend", "true");
     } else {
+      setIsBackendRunning(true); // Assume backend is running to avoid showing modal on subsequent renders
       checkBackend();
     }
   }, []);
 
   const closeModal = () => {
     setShowModal(false);
-    checkBackend();
   };
 
   return (
@@ -69,8 +74,26 @@ function InitState() {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h1>Check if the backend is running at {BASE_URL}</h1>
-            <button onClick={closeModal}>Close</button>
+            <h1>
+              {isBackendRunning
+                ? "🚀 The backend is running!"
+                : "😟 The backend is not running. Please check the URL."}
+            </h1>
+            {isBackendRunning ? (
+              <>
+                <p>Your backend is up and running smoothly. ✅</p>
+              </>
+            ) : (
+              <p>Make sure the backend server is running</p>
+            )}
+            <a
+              href={BASE_URL}
+              target="_blank"
+              className="button"
+              onClick={closeModal}
+            >
+              Go to Backend
+            </a>
           </div>
         </div>
       )}
