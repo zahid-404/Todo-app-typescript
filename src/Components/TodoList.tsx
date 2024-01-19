@@ -15,22 +15,22 @@ const TodoList = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const authStateValue = useRecoilValue(authState);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const getTodos = async () => {
-      const response = await fetch("http://localhost:3000/todo/todos", {
+      const response = await fetch(`${BASE_URL}/todo/todos`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      // Todo: Create a type for the response that you get back from the server
-      const data: Todo[] = await response.json();
+      const data = await response.json();
       setTodos(data);
     };
     getTodos();
   }, []);
 
   const addTodo = async () => {
-    const response = await fetch("http://localhost:3000/todo/todos", {
+    const response = await fetch(`${BASE_URL}/todo/todos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,14 +42,11 @@ const TodoList = () => {
     setTodos([...todos, data]);
   };
 
-  const markDone = async (id: string) => {
-    const response = await fetch(
-      `http://localhost:3000/todo/todos/${id}/done`,
-      {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
+  const markDone = async (id:string) => {
+    const response = await fetch(`${BASE_URL}/todo/todos/${id}/done`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     const updatedTodo = await response.json();
     setTodos(
       todos.map((todo) => (todo._id === updatedTodo._id ? updatedTodo : todo))
